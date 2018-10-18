@@ -25,6 +25,6 @@ before_script:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then npm run chromedriver; fi
 script:
   - $COMMAND
-  - echo $TRAVIS_OS_NAME
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo npm install -g appium-chromedriver; fi
 after_success:
   - npm run coverage
