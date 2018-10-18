@@ -4,7 +4,7 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
-      env: COMMAND="sudo npm install -g"
+      env: COMMAND="cd .. && sudo npm install -g appium-chromedriver"
     - os: osx
       osx_image: xcode10
       sudo: required
