@@ -1,4 +1,4 @@
-import { Chromedriver, getMostRecentChromedriver } from '../lib/chromedriver';
+import { Chromedriver, getMostRecentChromedriver, CHROMEDRIVER_CHROME_MAPPING } from '../lib/chromedriver';
 import * as utils from '../lib/utils';
 import sinon from 'sinon';
 import chai from 'chai';
@@ -66,7 +66,7 @@ describe('chromedriver', function () {
 
       it('should find most recent compatible binary from a number of possibilities', async function () {
         sandbox.stub(utils, 'getChromeVersion')
-          .returns('59.0.3029.42');
+          .returns('7000.0.3029.42');
         sandbox.stub(fs, 'glob')
           .returns([
             '/path/to/chromedriver-36',
@@ -80,52 +80,7 @@ describe('chromedriver', function () {
         sandbox.stub(tp, 'exec')
           .onCall(0)
             .returns({
-              stdout: 'ChromeDriver 2.36.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
-            })
-          .onCall(0)
-            .returns({
-              stdout: 'ChromeDriver 2.35.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
-            })
-          .onCall(0)
-            .returns({
-              stdout: 'ChromeDriver 2.34.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
-            })
-          .onCall(0)
-            .returns({
-              stdout: 'ChromeDriver 2.33.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
-            })
-          .onCall(0)
-            .returns({
-              stdout: 'ChromeDriver 2.32.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
-            })
-          .onCall(0)
-            .returns({
-              stdout: 'ChromeDriver 2.31.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
-            })
-          .onCall(0)
-            .returns({
-              stdout: 'ChromeDriver 2.30.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
-            });
-
-        const binPath = await cd.getCompatibleChromedriver();
-        binPath.should.eql('/path/to/chromedriver-36');
-      });
-
-      it('should correctly determine Chromedriver versions', async function () {
-        sandbox.stub(fs, 'glob')
-          .returns([
-            '/path/to/chromedriver-36',
-            '/path/to/chromedriver-35',
-            '/path/to/chromedriver-34',
-            '/path/to/chromedriver-33',
-            '/path/to/chromedriver-32',
-            '/path/to/chromedriver-31',
-            '/path/to/chromedriver-30',
-          ]);
-        sandbox.stub(tp, 'exec')
-          .onCall(0)
-            .returns({
-              stdout: 'ChromeDriver 2.36.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+              stdout: 'ChromeDriver 2.360.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
             })
           .onCall(1)
             .returns({
@@ -152,15 +107,66 @@ describe('chromedriver', function () {
               stdout: 'ChromeDriver 2.30.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
             });
 
-        const chromedrivers = await cd.getChromedrivers({});
-        for (const [cd, expectedVersion] of _.zip(chromedrivers, ['2.36', '2.35', '2.34', '2.33', '2.32', '2.31', '2.30'])) {
+        const binPath = await cd.getCompatibleChromedriver();
+        binPath.should.eql('/path/to/chromedriver-36');
+      });
+
+      it('should correctly determine Chromedriver versions', async function () {
+        sandbox.stub(fs, 'glob')
+          .returns([
+            '/path/to/chromedriver-74.0.3729.6',
+            '/path/to/chromedriver-36',
+            '/path/to/chromedriver-35',
+            '/path/to/chromedriver-34',
+            '/path/to/chromedriver-33',
+            '/path/to/chromedriver-32',
+            '/path/to/chromedriver-31',
+            '/path/to/chromedriver-30',
+          ]);
+        sandbox.stub(tp, 'exec')
+          .onCall(0)
+            .returns({
+              stdout: 'ChromeDriver 74.0.3729.6 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            })
+          .onCall(1)
+            .returns({
+              stdout: 'ChromeDriver 2.36.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            })
+          .onCall(2)
+            .returns({
+              stdout: 'ChromeDriver 2.35.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            })
+          .onCall(3)
+            .returns({
+              stdout: 'ChromeDriver 2.34.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            })
+          .onCall(4)
+            .returns({
+              stdout: 'ChromeDriver 2.33.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            })
+          .onCall(5)
+            .returns({
+              stdout: 'ChromeDriver 2.32.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            })
+          .onCall(6)
+            .returns({
+              stdout: 'ChromeDriver 2.31.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            })
+          .onCall(7)
+            .returns({
+              stdout: 'ChromeDriver 2.30.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
+            });
+
+        const chromedrivers = await cd.getChromedrivers(CHROMEDRIVER_CHROME_MAPPING);
+        for (const [cd, expectedVersion] of _.zip(chromedrivers, ['74.0.3729.6', '2.36', '2.35', '2.34', '2.33', '2.32', '2.31', '2.30'])) {
           cd.version.should.eql(expectedVersion);
+          cd.minChromeVersion.should.to.not.be.null;
         }
       });
 
       it('should find most recent binary from a number of possibilities when chrome is too new', async function () {
         sandbox.stub(utils, 'getChromeVersion')
-          .returns('70.0.0.42');
+          .returns('7000.0.0.42');
         sandbox.stub(fs, 'glob')
           .returns([
             '/path/to/chromedriver-9000',
@@ -173,15 +179,15 @@ describe('chromedriver', function () {
             .returns({
               stdout: 'ChromeDriver 2.9000.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
             })
-          .onCall(0)
+          .onCall(1)
             .returns({
               stdout: 'ChromeDriver 2.8999.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
             })
-          .onCall(0)
+          .onCall(2)
             .returns({
               stdout: 'ChromeDriver 2.36.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
             })
-          .onCall(0)
+          .onCall(3)
             .returns({
               stdout: 'ChromeDriver 2.35.540469 (1881fd7f8641508feb5166b7cae561d87723cfa8)',
             });
@@ -283,7 +289,7 @@ describe('chromedriver', function () {
         '2.12': '36.0.1985',
         'v2.11': '36.0.1985',
         '2.10.0.0': '33.0.1751',
-        '2.9-beta': '31.0.1650',
+        '2.9.3-beta': '31.0.1650',
         '2.8': '30.0.1573',
         '2.7': '30.0.1573',
         '2.6': '29.0.1545',
